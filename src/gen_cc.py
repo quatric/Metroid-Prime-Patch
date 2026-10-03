@@ -8,16 +8,15 @@ import gen_common as g
 from layout import CC_BASE, CC_END
 from ops import Feature
 
-USA_DOL = None
-
-# the displaced `bl`, as an absolute call so the routine works wherever a code handler puts it
 CALL = '    lis     12, IR_CALL@ha\n    addi    12, 12, IR_CALL@l\n    mtctr   12\n    bctrl\n'
 
 
 def build(region, dol):
-    g.USA_DOL = USA_DOL
     at, w = g.sites(region, dol)
+    cfg = g.REGION_SITES[region]
     consts = dict(g.WM, **g.CC)
+    consts['SMP_REG'] = cfg['smp_reg']
+    consts['CHAN_REG'] = cfg['chan_reg']
     ops, cur = [], CC_BASE
     h, size = g.hook(at['stb'], w['stb'], cur, g.read('cc_sample.s'), {}, consts,
                      'KPAD sampling callback: Classic Controller sample -> Wii Remote + Nunchuk sample')

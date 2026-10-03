@@ -8,16 +8,16 @@ import gen_common as g
 from layout import GC_BASE, GC_END
 from ops import Feature
 
-USA_DOL = None
-
-# the displaced `b`, as an absolute jump so the routine works wherever a code handler puts it
 JUMP = '    lis     12, LOOP_END@ha\n    addi    12, 12, LOOP_END@l\n    mtctr   12\n    bctr\n'
 
 
 def build(region, dol):
-    g.USA_DOL = USA_DOL
     at, w = g.sites(region, dol)
+    cfg = g.REGION_SITES[region]
     consts = dict(g.WM, **g.PAD)
+    consts['SMP_REG'] = cfg['smp_reg']
+    consts['CHAN_REG'] = cfg['chan_reg']
+    consts['INDEX_REG'] = cfg['index_reg']
     ops, cur = [], GC_BASE
     h, size = g.hook(at['addi'], w['addi'], cur, g.read('gc_sample.s'), {}, consts,
                      'KPAD sampling callback: GameCube pad -> Wii Remote + Nunchuk sample')

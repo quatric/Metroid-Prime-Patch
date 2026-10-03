@@ -15,6 +15,7 @@ def main():
     dol_map = {
         'R3IJ01': os.path.join(HERE, '..', 'work', 'fst_jp', 'sys', 'main.dol'),
         'R32J01': os.path.join(HERE, '..', 'work', 'fst_mp2_jp', 'sys', 'main.dol'),
+        'RM3E01': os.path.join(HERE, '..', 'work', 'fst_mp3_usa', 'sys', 'main.dol'),
     }
 
     for region in REGIONS:

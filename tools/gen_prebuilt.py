@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regenerate tools/prebuilt/*.json from src/ (needs devkitPPC and a retail main.dol).
 
-    MP_DOLS=R3IJ01=/path/to/main.dol,R32J01=/path/to/mp2/main.dol python3 tools/gen_prebuilt.py
+    MP_DOLS=R3IJ01=/path/to/main.dol,R32J01=/path/to/mp2/main.dol,RM3E01=/path/to/mp3/main.dol python3 tools/gen_prebuilt.py
 """
 import json
 import os
@@ -33,10 +33,13 @@ def main():
     
     default_jp = os.path.join(HERE, '..', 'work', 'fst_jp', 'sys', 'main.dol')
     default_mp2_jp = os.path.join(HERE, '..', 'work', 'fst_mp2_jp', 'sys', 'main.dol')
+    default_mp3_usa = os.path.join(HERE, '..', 'work', 'fst_mp3_usa', 'sys', 'main.dol')
     if 'R3IJ01' not in dol_map and os.path.isfile(default_jp):
         dol_map['R3IJ01'] = default_jp
     if 'R32J01' not in dol_map and os.path.isfile(default_mp2_jp):
         dol_map['R32J01'] = default_mp2_jp
+    if 'RM3E01' not in dol_map and os.path.isfile(default_mp3_usa):
+        dol_map['RM3E01'] = default_mp3_usa
 
     for region in REGIONS:
         if region not in dol_map or not os.path.isfile(dol_map[region]):

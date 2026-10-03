@@ -16,6 +16,13 @@ REGION_SITES = {
         b=0x804882FC,
         probe=0x804A6F30,
         ring=0x80487D44,
+        smp_reg=30,
+        chan_reg=29,
+        index_reg=28,
+        stb_op=0x987E0036,
+        addi_op=0x381C0001,
+        bl_op=0x4BFFEF19,
+        b_op=0x48000008,
     ),
     'R32J01': dict(
         stb=0x80488554,
@@ -24,6 +31,28 @@ REGION_SITES = {
         b=0x80488184,
         probe=0x804A6DB8,
         ring=0x80487BCC,
+        smp_reg=30,
+        chan_reg=29,
+        index_reg=28,
+        stb_op=0x987E0036,
+        addi_op=0x381C0001,
+        bl_op=0x4BFFEF19,
+        b_op=0x48000008,
+    ),
+    'RM3E01': dict(
+        stb=0x804D9C1C,
+        addi=0x804D9C20,
+        bl=0x804D97F0,
+        b=0x804D97F4,
+        probe=0x804F66B8,
+        ring=0x804D923C,
+        smp_reg=28,
+        chan_reg=30,
+        index_reg=29,
+        stb_op=0x987C0036,
+        addi_op=0x381D0001,
+        bl_op=0x4BFFEF2D,
+        b_op=0x48000008,
     ),
 }
 
@@ -40,7 +69,6 @@ PAD = dict(PAD_LEFT=0x0001, PAD_RIGHT=0x0002, PAD_DOWN=0x0004, PAD_UP=0x0008, PA
            PAD_R=0x0020, PAD_L=0x0040, PAD_A=0x0100, PAD_B=0x0200, PAD_X=0x0400, PAD_Y=0x0800,
            PAD_START=0x1000)
 
-# pointer scale: screen units per 1/1000th of stick travel
 PTR_X = 0.00065
 PTR_Y = -0.00070
 
@@ -60,10 +88,12 @@ def decode_branch(word, at):
 
 
 def sites(region, dol):
-    out = {k: REGION_SITES[region][k] for k in ('stb', 'addi', 'bl', 'b')}
+    cfg = REGION_SITES[region]
+    out = {k: cfg[k] for k in ('stb', 'addi', 'bl', 'b')}
     w = {k: struct.unpack('>I', dol.read(a, 4))[0] for k, a in out.items()}
-    if w['stb'] != 0x987E0036 or w['addi'] != 0x381C0001:
-        raise SystemExit('%s: sample hook sites are 0x%08X 0x%08X' % (region, w['stb'], w['addi']))
+    if w['stb'] != cfg['stb_op'] or w['addi'] != cfg['addi_op']:
+        raise SystemExit('%s: sample hook sites are 0x%08X 0x%08X (expected 0x%08X 0x%08X)' % (
+            region, w['stb'], w['addi'], cfg['stb_op'], cfg['addi_op']))
     if (w['bl'] >> 26) != 18 or not (w['bl'] & 1) or (w['b'] >> 26) != 18 or (w['b'] & 1):
         raise SystemExit('%s: pointer hook sites are not bl / b' % region)
     return out, w
@@ -80,7 +110,8 @@ def hook(site, orig, base, source, syms, consts, note):
 
 
 def gc_extra_sites(region, dol):
-    out = {k: REGION_SITES[region][k] for k in ('probe', 'ring')}
+    cfg = REGION_SITES[region]
+    out = {k: cfg[k] for k in ('probe', 'ring')}
     w = {k: struct.unpack('>I', dol.read(a, 4))[0] for k, a in out.items()}
     if w['probe'] != 0x9421FFF0 or w['ring'] != 0x881F010F:
         raise SystemExit('%s: probe / ring sites are 0x%08X 0x%08X' % (region, w['probe'], w['ring']))

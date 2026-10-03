@@ -1,5 +1,5 @@
-# hook: KPAD sampling callback, the `stb r3,0x36(r30)` that stores the sample's
-# data format (r29 = channel, r30 = the sample in KPAD's ring buffer, a WPADStatus).
+# hook: KPAD sampling callback, the `stb r3,0x36(SMP_REG)` that stores the sample's
+# data format (CHAN_REG = channel, SMP_REG = the sample in KPAD's ring buffer, a WPADStatus).
 #
 # A Classic Controller plugged into the Wii Remote is rewritten, in place, into
 # the Wii Remote + Nunchuk sample the game was written for, so the rest of KPAD
@@ -24,21 +24,21 @@
 #   -                             Map / Options (Minus / 1)
 #   +                             Pause (Plus)
 #   D-pad                         D-pad (Beams / Visors / Menus)
-    stb     3, 0x36(30)                 # displaced instruction
+    stb     3, 0x36(SMP_REG)            # displaced instruction
     li      0, 0
-    stb     0, 0x37(30)                 # marker: nothing synthetic yet
-    lbz     4, 0x29(30)
+    stb     0, 0x37(SMP_REG)            # marker: nothing synthetic yet
+    lbz     4, 0x29(SMP_REG)
     cmplwi  4, 0
     bne     9f                          # only a good sample
-    lbz     4, 0x28(30)
+    lbz     4, 0x28(SMP_REG)
     cmplwi  4, 2
     bne     9f                          # only a Classic Controller
-    lhz     5, 0x2a(30)                 # Classic Controller buttons
-    lhz     6, 0x00(30)                 # Wii Remote buttons
-    lha     8, 0x2c(30)                 # left stick X
-    lha     9, 0x2e(30)                 # left stick Y
-    lha     10, 0x30(30)                # right stick X
-    lha     11, 0x32(30)                # right stick Y
+    lhz     5, 0x2a(SMP_REG)            # Classic Controller buttons
+    lhz     6, 0x00(SMP_REG)            # Wii Remote buttons
+    lha     8, 0x2c(SMP_REG)            # left stick X
+    lha     9, 0x2e(SMP_REG)            # left stick Y
+    lha     10, 0x30(SMP_REG)           # right stick X
+    lha     11, 0x32(SMP_REG)           # right stick Y
     li      7, 0
     mapbit  CC_A,      WM_A
     mapbit  CC_B,      WM_B
@@ -56,7 +56,7 @@
     mapbit  CC_LEFT,   WM_LEFT
     mapbit  CC_RIGHT,  WM_RIGHT
     or      6, 6, 7
-    sth     6, 0x00(30)
+    sth     6, 0x00(SMP_REG)
     # left stick (+-308) -> Nunchuk stick (+-71 is full deflection)
     mulli   8, 8, 59
     srawi   8, 8, 8
@@ -74,13 +74,13 @@
     srawi   11, 11, 2
     clamp   11, 1000
     li      0, 1
-    stb     0, 0x28(30)                 # device: Nunchuk
+    stb     0, 0x28(SMP_REG)            # device: Nunchuk
     li      0, 4
-    stb     0, 0x36(30)                 # data format: Nunchuk buttons + accelerometer
-    stb     8, 0x30(30)
-    stb     9, 0x31(30)
-    sth     10, 0x2a(30)
-    sth     11, 0x2c(30)
+    stb     0, 0x36(SMP_REG)            # data format: Nunchuk buttons + accelerometer
+    stb     8, 0x30(SMP_REG)
+    stb     9, 0x31(SMP_REG)
+    sth     10, 0x2a(SMP_REG)
+    sth     11, 0x2c(SMP_REG)
     li      0, 1
-    stb     0, 0x37(30)
+    stb     0, 0x37(SMP_REG)
 9:
