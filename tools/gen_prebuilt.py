@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regenerate tools/prebuilt/*.json from src/ (needs devkitPPC and a retail main.dol).
 
-    MP_DOL=/path/to/main.dol python3 tools/gen_prebuilt.py
+    MP_DOLS=R3IJ01=/path/to/main.dol,R32J01=/path/to/mp2/main.dol python3 tools/gen_prebuilt.py
 """
 import json
 import os
@@ -25,14 +25,21 @@ def main():
     if dols:
         for p in dols.split(','):
             p = p.strip()
-            if os.path.isfile(p):
+            if '=' in p:
+                reg, path = p.split('=', 1)
+                dol_map[reg.strip()] = path.strip()
+            elif os.path.isfile(p):
                 dol_map['R3IJ01'] = p
+    
     default_jp = os.path.join(HERE, '..', 'work', 'fst_jp', 'sys', 'main.dol')
+    default_mp2_jp = os.path.join(HERE, '..', 'work', 'fst_mp2_jp', 'sys', 'main.dol')
     if 'R3IJ01' not in dol_map and os.path.isfile(default_jp):
         dol_map['R3IJ01'] = default_jp
+    if 'R32J01' not in dol_map and os.path.isfile(default_mp2_jp):
+        dol_map['R32J01'] = default_mp2_jp
 
     for region in REGIONS:
-        if region not in dol_map:
+        if region not in dol_map or not os.path.isfile(dol_map[region]):
             print("Skipping %s (DOL not found)" % region)
             continue
         print("Building prebuilt for %s from %s..." % (region, dol_map[region]))

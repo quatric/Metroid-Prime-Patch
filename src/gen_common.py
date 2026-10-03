@@ -1,4 +1,4 @@
-"""Shared pieces of the Classic Controller and GameCube controller builders for Metroid Prime."""
+"""Shared pieces of the Classic Controller and GameCube controller builders for Metroid Prime series."""
 import os
 import struct
 import sys
@@ -7,16 +7,25 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'tools'))
 import asm
 from ops import Hook
-from sig import find_unique
 
-# Site addresses in R3IJ01:
-SAMPLE_STB = 0x804886CC          # stb r3,0x36(r30)   data format stored
-SAMPLE_ADDI = 0x804886D0         # addi r0,r28,1      next instruction
-POINTER_BL = 0x804882F8          # bl <per-sample IR/geometry>
-POINTER_B = 0x804882FC           # b  <end of the sample's iteration>
-
-PROBE_ENTRY = 0x804A6F30         # WPADProbe, first instruction (stwu r1,-0x10(r1))
-RING_COUNT = 0x80487D44          # lbz r0,0x10f(r31)  KPAD read: samples waiting in the ring
+REGION_SITES = {
+    'R3IJ01': dict(
+        stb=0x804886CC,
+        addi=0x804886D0,
+        bl=0x804882F8,
+        b=0x804882FC,
+        probe=0x804A6F30,
+        ring=0x80487D44,
+    ),
+    'R32J01': dict(
+        stb=0x80488554,
+        addi=0x80488558,
+        bl=0x80488180,
+        b=0x80488184,
+        probe=0x804A6DB8,
+        ring=0x80487BCC,
+    ),
+}
 
 # Wii Remote / Nunchuk button bits (WPAD)
 WM = dict(WM_LEFT=0x0001, WM_RIGHT=0x0002, WM_DOWN=0x0004, WM_UP=0x0008, WM_PLUS=0x0010,
@@ -51,7 +60,7 @@ def decode_branch(word, at):
 
 
 def sites(region, dol):
-    out = dict(stb=SAMPLE_STB, addi=SAMPLE_ADDI, bl=POINTER_BL, b=POINTER_B)
+    out = {k: REGION_SITES[region][k] for k in ('stb', 'addi', 'bl', 'b')}
     w = {k: struct.unpack('>I', dol.read(a, 4))[0] for k, a in out.items()}
     if w['stb'] != 0x987E0036 or w['addi'] != 0x381C0001:
         raise SystemExit('%s: sample hook sites are 0x%08X 0x%08X' % (region, w['stb'], w['addi']))
@@ -71,7 +80,7 @@ def hook(site, orig, base, source, syms, consts, note):
 
 
 def gc_extra_sites(region, dol):
-    out = dict(probe=PROBE_ENTRY, ring=RING_COUNT)
+    out = {k: REGION_SITES[region][k] for k in ('probe', 'ring')}
     w = {k: struct.unpack('>I', dol.read(a, 4))[0] for k, a in out.items()}
     if w['probe'] != 0x9421FFF0 or w['ring'] != 0x881F010F:
         raise SystemExit('%s: probe / ring sites are 0x%08X 0x%08X' % (region, w['probe'], w['ring']))
