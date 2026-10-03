@@ -1,0 +1,9 @@
+work/
+*.bak
+*.dol
+*.iso
+*.wbfs
+*.rvz
+__pycache__/
+*.pyc
+.DS_Store
