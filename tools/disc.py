@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import features
 import patcher
 from dol import Dol
+from disc_ids import match_disc_id
 from regions import REGIONS
 
 
@@ -68,11 +69,11 @@ def run_patch(image_path, log, done, which=('cc', 'gc')):
             if not got:
                 raise RuntimeError('could not read sys/boot.bin from the extracted disc')
             disc_id, disc_ver = got
-            if disc_id not in REGIONS or disc_ver != REGIONS[disc_id]['version']:
+            region = match_disc_id(disc_id, REGIONS)
+            if region is None or disc_ver != REGIONS[region]['version']:
                 raise RuntimeError('%s v%d is not a Metroid Prime release this patcher knows.\n\n'
                                    'Supported: %s' % (disc_id, disc_ver, ', '.join(
                                        '%s (%s)' % (k, v['short']) for k, v in REGIONS.items())))
-            region = disc_id
             log('disc: %s (%s)' % (region, REGIONS[region]['label']))
 
             # Collect all DOLs to patch on this disc

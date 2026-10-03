@@ -14,7 +14,7 @@ ORDER = ('cc', 'gc')
 def detect_region(dol, disc_id=None):
     """Which release this main.dol is, from its own bytes (None if unknown)."""
     for region, info in REGIONS.items():
-        if disc_id and info['disc_id'] != disc_id:
+        if disc_id and info['disc_id'][:4] != disc_id[:4]:
             continue
         if len(dol.data) != info['dol_size']:
             continue
