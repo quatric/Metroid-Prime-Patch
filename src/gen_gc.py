@@ -29,7 +29,8 @@ def build(region, dol):
     ops.append(h)
     cur += size
     ex, ew = g.gc_extra_sites(region, dol)
-    h, size = g.hook(ex['ring'], ew['ring'], cur, g.read('gc_synth.s'), {}, consts,
+    ring_src = cfg.get('ring_src', 'gc_synth.s')
+    h, size = g.hook(ex['ring'], ew['ring'], cur, g.read(ring_src), {}, consts,
                      'KPAD read: no Wii Remote, so make the sample from the GameCube pad')
     ops.append(h)
     cur += size

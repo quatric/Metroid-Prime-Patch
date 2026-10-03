@@ -31,15 +31,23 @@ def main():
             elif os.path.isfile(p):
                 dol_map['R3IJ01'] = p
     
-    default_jp = os.path.join(HERE, '..', 'work', 'fst_jp', 'sys', 'main.dol')
-    default_mp2_jp = os.path.join(HERE, '..', 'work', 'fst_mp2_jp', 'sys', 'main.dol')
-    default_mp3_usa = os.path.join(HERE, '..', 'work', 'fst_mp3_usa', 'sys', 'main.dol')
-    if 'R3IJ01' not in dol_map and os.path.isfile(default_jp):
-        dol_map['R3IJ01'] = default_jp
-    if 'R32J01' not in dol_map and os.path.isfile(default_mp2_jp):
-        dol_map['R32J01'] = default_mp2_jp
-    if 'RM3E01' not in dol_map and os.path.isfile(default_mp3_usa):
-        dol_map['RM3E01'] = default_mp3_usa
+    mp_dols = os.path.expanduser('~/mp_dols')
+    for reg in REGIONS:
+        cand = os.path.join(mp_dols, f'{reg}.dol')
+        if reg not in dol_map and os.path.isfile(cand):
+            dol_map[reg] = cand
+    # MPT USA
+    mpt_u = os.path.join(mp_dols, 'mpt_usa')
+    dol_map.setdefault('R3ME01', os.path.join(mpt_u, 'main.dol'))
+    dol_map.setdefault('R3ME01_mp1', os.path.join(mpt_u, 'rs5mp1_p.dol'))
+    dol_map.setdefault('R3ME01_mp2', os.path.join(mpt_u, 'rs5mp2_p.dol'))
+    dol_map.setdefault('R3ME01_mp3', os.path.join(mpt_u, 'rs5mp3_p.dol'))
+    # MPT Europe
+    mpt_p = os.path.join(mp_dols, 'mpt_pal')
+    dol_map.setdefault('R3MP01', os.path.join(mpt_p, 'main.dol'))
+    dol_map.setdefault('R3MP01_mp1', os.path.join(mpt_p, 'rs5mp1_p.dol'))
+    dol_map.setdefault('R3MP01_mp2', os.path.join(mpt_p, 'rs5mp2_p.dol'))
+    dol_map.setdefault('R3MP01_mp3', os.path.join(mpt_p, 'rs5mp3_p.dol'))
 
     for region in REGIONS:
         if region not in dol_map or not os.path.isfile(dol_map[region]):

@@ -5,7 +5,12 @@ Play all Wii releases of the **Metroid Prime series** with a **GameCube controll
 ### Supported Games
 - **Metroid Prime** (*New Play Control! Metroid Prime*, `R3IJ01`)
 - **Metroid Prime 2: Dark Echoes** (*New Play Control! Metroid Prime 2: Dark Echoes*, `R32J01`)
-- **Metroid Prime 3: Corruption** (`RM3E01`)
+- **Metroid Prime 3: Corruption** (`RM3E01` USA, `RM3P01` Europe)
+- **Metroid Prime Trilogy** (`R3ME01` USA, `R3MP01` Europe)
+  - FrontEnd / Loader (`main.dol` / `rs5fe_p.dol`)
+  - Metroid Prime 1 (`rs5mp1_p.dol`)
+  - Metroid Prime 2: Dark Echoes (`rs5mp2_p.dol`)
+  - Metroid Prime 3: Corruption (`rs5mp3_p.dol`)
 
 ### Controls
 

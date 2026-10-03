@@ -16,9 +16,10 @@ def detect_region(dol, disc_id=None):
     for region, info in REGIONS.items():
         if disc_id and info['disc_id'] != disc_id:
             continue
-        if len(dol.data) < info['dol_size']:
+        if len(dol.data) != info['dol_size']:
             continue
-        if all(v != 'mismatch' for v in status(dol, region).values()):
+        st = status(dol, region)
+        if st and all(v != 'mismatch' for v in st.values()):
             return region
     return None
 

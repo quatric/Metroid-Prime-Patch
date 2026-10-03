@@ -75,31 +75,52 @@ def run_patch(image_path, log, done, which=('cc', 'gc')):
             region = disc_id
             log('disc: %s (%s)' % (region, REGIONS[region]['label']))
 
-            dol_path = find_file(fst, 'main.dol')
-            if not dol_path or os.path.basename(os.path.dirname(dol_path)) != 'sys':
+            # Collect all DOLs to patch on this disc
+            # For standalone releases: sys/main.dol
+            # For Metroid Prime Trilogy: sys/main.dol, files/rs5mp1_p.dol, files/rs5mp2_p.dol, files/rs5mp3_p.dol
+            targets = []
+            sys_main = find_file(fst, 'main.dol')
+            if not sys_main or os.path.basename(os.path.dirname(sys_main)) != 'sys':
                 raise RuntimeError('could not find sys/main.dol in the extracted disc')
-            dol = Dol(dol_path)
+            targets.append((sys_main, region))
 
-            have = patcher.status(dol, region)
-            todo = []
-            for name in which:
-                st = have.get(name)
-                if st == 'patched':
-                    log('%s is already in this disc, skipping' % features.TITLES[name])
-                elif st == 'clean':
-                    todo.append(name)
-                else:
-                    raise RuntimeError('the main.dol does not match the retail %s (%s) -- already modified '
-                                       'by something else, or not an unmodified dump. Not patching it.'
-                                       % (REGIONS[region]['label'], features.TITLES[name]))
-            if not todo:
+            # Check for Trilogy sub-DOLs in files/
+            sub_map = {
+                'rs5mp1_p.dol': f'{region}_mp1',
+                'rs5mp2_p.dol': f'{region}_mp2',
+                'rs5mp3_p.dol': f'{region}_mp3',
+            }
+            files_dir = os.path.join(fst, 'files')
+            if os.path.isdir(files_dir):
+                for sub_fname, sub_reg in sub_map.items():
+                    sub_path = os.path.join(files_dir, sub_fname)
+                    if os.path.isfile(sub_path) and sub_reg in REGIONS:
+                        targets.append((sub_path, sub_reg))
+
+            total_patched = 0
+            for d_path, d_reg in targets:
+                d_name = os.path.basename(d_path)
+                dol = Dol(d_path)
+                have = patcher.status(dol, d_reg)
+                todo = []
+                for name in which:
+                    st = have.get(name)
+                    if st == 'patched':
+                        log('%s: %s is already in this DOL, skipping' % (d_name, features.TITLES[name]))
+                    elif st == 'clean':
+                        todo.append(name)
+                    else:
+                        raise RuntimeError('%s: does not match retail %s (%s) -- already modified'
+                                           % (d_name, REGIONS[d_reg]['label'], features.TITLES[name]))
+                if todo:
+                    for t in patcher.patch(dol, d_reg, todo):
+                        log('  [%s] added %s' % (d_name, t))
+                    dol.save(d_path)
+                    log('  patched %s' % d_name)
+                    total_patched += len(todo)
+
+            if not total_patched:
                 raise RuntimeError('nothing left to add: the selected patches are already in this disc.')
-
-            if todo:
-                for t in patcher.patch(dol, region, todo):
-                    log('  added %s' % t)
-                dol.save(dol_path)
-                log('  patched main.dol')
 
             staged = os.path.join(tmp, 'patched.img')
             log('rebuilding...')

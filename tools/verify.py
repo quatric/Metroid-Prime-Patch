@@ -12,11 +12,24 @@ from regions import REGIONS
 
 
 def main():
-    dol_map = {
-        'R3IJ01': os.path.join(HERE, '..', 'work', 'fst_jp', 'sys', 'main.dol'),
-        'R32J01': os.path.join(HERE, '..', 'work', 'fst_mp2_jp', 'sys', 'main.dol'),
-        'RM3E01': os.path.join(HERE, '..', 'work', 'fst_mp3_usa', 'sys', 'main.dol'),
-    }
+    mp_dols = os.path.expanduser('~/mp_dols')
+    dol_map = {}
+    for r in REGIONS:
+        cand = os.path.join(mp_dols, f'{r}.dol')
+        if os.path.isfile(cand):
+            dol_map[r] = cand
+    # MPT USA
+    mpt_u = os.path.join(mp_dols, 'mpt_usa')
+    dol_map.setdefault('R3ME01', os.path.join(mpt_u, 'main.dol'))
+    dol_map.setdefault('R3ME01_mp1', os.path.join(mpt_u, 'rs5mp1_p.dol'))
+    dol_map.setdefault('R3ME01_mp2', os.path.join(mpt_u, 'rs5mp2_p.dol'))
+    dol_map.setdefault('R3ME01_mp3', os.path.join(mpt_u, 'rs5mp3_p.dol'))
+    # MPT Europe
+    mpt_p = os.path.join(mp_dols, 'mpt_pal')
+    dol_map.setdefault('R3MP01', os.path.join(mpt_p, 'main.dol'))
+    dol_map.setdefault('R3MP01_mp1', os.path.join(mpt_p, 'rs5mp1_p.dol'))
+    dol_map.setdefault('R3MP01_mp2', os.path.join(mpt_p, 'rs5mp2_p.dol'))
+    dol_map.setdefault('R3MP01_mp3', os.path.join(mpt_p, 'rs5mp3_p.dol'))
 
     for region in REGIONS:
         path = dol_map.get(region)
