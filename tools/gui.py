@@ -47,7 +47,7 @@ class App(BASE):
             tk.Label(self, image=self.logo).pack(pady=(10, 0))
         except Exception:                              # the window is fine without its logo
             pass
-        tk.Label(self, text='New Play Control! Metroid Prime (Wii)',
+        tk.Label(self, text='Metroid Prime Series (Wii)',
                  font=('Helvetica', 12, 'bold')).pack(pady=(4, 6))
 
         opts = tk.LabelFrame(self, text='Patches')
